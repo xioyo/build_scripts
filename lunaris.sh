@@ -131,6 +131,7 @@ send_telegram "⚙️ *ROM Build Started*
 # =========================================================
 echo ">>>> [STEP] Clean"
 rm -rf .repo/local_manifests
+sudo apt update && sudo apt install -y libssl-dev
 
 # =========================================================
 # INIT
@@ -159,9 +160,10 @@ echo ">>>> [STEP] Repo Sync"
 # KEYS
 # =========================================================
 echo ">>>> [STEP] Keys Setup"
-cd vendor/lunaris-priv/keys || fail_build
-chmod +x keys.sh && ./keys.sh || fail_build
-cd - || fail_build
+rm -rf vendor/lineage-priv/keys
+git clone -b 16.2 https://github.com/xioyo/vendor_lunaris-priv_keys.git vendor/lineage-priv/keys
+cd vendor/lineage-priv/keys && bash $(pwd)/keys.sh
+cd ../../..
 
 # =========================================================
 # ENV SETUP
