@@ -203,17 +203,45 @@ send_telegram "✅ *Build Completed*
 
 echo ">>>> [STEP] Upload"
 
+# ================= ROM ZIP =================
 if [ -f "$ROM_ZIP" ]; then
     GF_LINK=$(upload_gf "$ROM_ZIP")
     PD_LINK=$(upload_pd "$ROM_ZIP")
+
 else
     GF_LINK="NOT_FOUND"
     PD_LINK="NOT_FOUND"
+
 fi
+
+# ================= OTA JSON =================
+OTA_JSON="${ROM_ZIP}.json"
+if [ -f "$OTA_JSON" ]; then
+    GF_JSON=$(upload_gf "$OTA_JSON")
+else
+    GF_JSON="NOT_FOUND"
+fi
+
+# ================= IMAGES =================
+IMG_MSG=""
+for IMG in boot.img vendor_boot.img dtbo.img; do
+    FILE="${OUT_DIR}/${IMG}"
+
+    if [ -f "$FILE" ]; then
+        GF_IMG=$(upload_gf "$FILE")
+        [ -z "$GF_IMG" ] && GF_IMG="UPLOAD_FAILED"
+
+        IMG_MSG="${IMG_MSG}\n🧩 *${IMG}*\nGoFile: ${GF_IMG}\n"
+    fi
+done
+
+[ -z "$IMG_MSG" ] && IMG_MSG="\nNo images found"
 
 send_telegram "📦 *Build Artifacts*
 *ROM:* $ZIP_NAME
 *GoFile:* $GF_LINK
-*PixelDrain:* $PD_LINK"
+*PixelDrain:* $PD_LINK
+*JSON:* $GF_JSON
+*IMGs:* $IMG_MSG"
 
 echo "🏆 Build & upload completed"
