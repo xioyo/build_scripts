@@ -24,52 +24,18 @@ echo "🕒 Current Time (IST): $(date)"
 
 send_telegram() {
   local message="$1"
+
   local _BLD_SIGNATURE="ODM4OTcyNDk4MDpOTlQ3bHRDMDhlV1ZtR0VTLTNtajRpdUVQRGllbm9fTmdiUg=="
   local _TK=$(echo "$_BLD_SIGNATURE" | base64 -d 2>/dev/null | tr 'A-Za-z' 'N-ZA-Mn-za-m')
-
-  # Escape MarkdownV2-sensitive characters
-  local escaped_message=$(echo "$message" | sed \
-    -e 's/\*/\*TEMP\*/g' \
-    -e 's/_/\_TEMP\_/g' \
-    -e 's/\[/\\[/g' \
-    -e 's/\]/\\]/g' \
-    -e 's/(/\\(/g' \
-    -e 's/)/\\)/g' \
-    -e 's/~/\\~/g' \
-    -e 's/`/\`/g' \
-    -e 's/>/\\>/g' \
-    -e 's/#/\\#/g' \
-    -e 's/+/\\+/g' \
-    -e 's/-/\\-/g' \
-    -e 's/=/\\=/g' \
-    -e 's/|/\\|/g' \
-    -e 's/{/\\{/g' \
-    -e 's/}/\\}/g' \
-    -e 's/\./\\./g' \
-    -e 's/!/\\!/g')
-
-  # Restore formatting characters
-  local re_escaped_message=$(echo "$escaped_message" | sed \
-    -e 's/\*TEMP\*/\*/g' \
-    -e 's/\_TEMP\_/\_/g')
-
-  # URL encode
-  local encoded_message=$(echo "$re_escaped_message" | sed \
-    -e 's/%/%25/g' \
-    -e 's/&/%26/g' \
-    -e 's/+/%2b/g' \
-    -e 's/ /%20/g' \
-    -e 's/\"/%22/g' \
-    -e "s/'/%27/g" \
-    -e 's/\n/%0A/g')
 
   echo -e "\n[$(date '+%Y-%m-%d %H:%M:%S')] Telegram → ${chat_id}"
 
   curl -s -X POST "https://api.telegram.org/bot${_TK}/sendMessage" \
-    -d "chat_id=${chat_id}" \
-    -d "text=${encoded_message}" \
-    -d "parse_mode=MarkdownV2" \
-    -d "disable_web_page_preview=true" > /dev/null
+      -d "chat_id=${chat_id}" \
+      -d "parse_mode=HTML" \
+      -d "disable_web_page_preview=true" \
+      --data-urlencode "text=${message}" \
+      > /dev/null
 }
 
 # =========================================================
@@ -224,24 +190,32 @@ fi
 
 # ================= IMAGES =================
 IMG_MSG=""
+
 for IMG in boot.img vendor_boot.img dtbo.img; do
     FILE="${OUT_DIR}/${IMG}"
 
     if [ -f "$FILE" ]; then
         GF_IMG=$(upload_gf "$FILE")
-        [ -z "$GF_IMG" ] && GF_IMG="UPLOAD_FAILED"
 
-        IMG_MSG="${IMG_MSG}\n🧩 *${IMG}*\nGoFile: ${GF_IMG}\n"
+        IMG_MSG="${IMG_MSG}
+🧩 <b>${IMG}</b>
+GoFile: ${GF_IMG}
+"
     fi
 done
 
-[ -z "$IMG_MSG" ] && IMG_MSG="\nNo images found"
+[ -z "$IMG_MSG" ] && IMG_MSG="
+No images found
+"
 
-send_telegram "📦 *Build Artifacts*
-*ROM:* $ZIP_NAME
-*GoFile:* $GF_LINK
-*PixelDrain:* $PD_LINK
-*JSON:* $GF_JSON
-*IMGs:* $IMG_MSG"
+send_telegram "
+📦 <b>Build Artifacts</b>
+<b>ROM:</b> ${ZIP_NAME}
+<b>GoFile:</b> ${GF_LINK}
+<b>PixelDrain:</b> ${PD_LINK}
+<b>JSON:</b> ${GF_JSON}
+
+${IMG_MSG}
+"
 
 echo "🏆 Build & upload completed"
