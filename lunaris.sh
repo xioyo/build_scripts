@@ -181,7 +181,8 @@ else
 fi
 
 # ================= OTA JSON =================
-OTA_JSON="${ROM_ZIP}.json"
+OTA_JSON="${OUT_DIR}/${TARGET_DEVICE}.json"
+
 if [ -f "$OTA_JSON" ]; then
     GF_JSON=$(upload_gf "$OTA_JSON")
 else
