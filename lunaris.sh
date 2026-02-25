@@ -104,7 +104,7 @@ sudo apt update && sudo apt install -y libssl-dev
 # =========================================================
 echo ">>>> [STEP] Repo Init"
 repo init -u https://github.com/Lunaris-AOSP/android \
-          -b 16.2 \
+          -b test \
           --git-lfs || fail_build
 
 # =========================================================
