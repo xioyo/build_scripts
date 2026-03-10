@@ -1,12 +1,12 @@
 #!/bin/bash
 set -o pipefail
 
-echo "🔧 LunarisOS Build Script Starting..."
+echo "🔧 Project InfinityX Build Script Starting..."
 
 # =========================================================
 # BUILD METADATA
 # =========================================================
-ROM_NAME="LunarisOS"
+ROM_NAME="InfinityX"
 ANDROID_VERSION="Android 16.2"
 MAINTAINER="xioyo"
 TARGET_DEVICE="oriole"
@@ -103,8 +103,8 @@ sudo apt update && sudo apt install -y libssl-dev
 # INIT
 # =========================================================
 echo ">>>> [STEP] Repo Init"
-repo init -u https://github.com/Lunaris-AOSP/android \
-          -b test \
+repo init -u https://github.com/ProjectInfinity-X/manifest \
+          -b 16 \
           --git-lfs || fail_build
 
 # =========================================================
@@ -113,7 +113,7 @@ repo init -u https://github.com/Lunaris-AOSP/android \
 echo ">>>> [STEP] Local Manifests"
 git clone https://github.com/xioyo/local_manifest \
           --depth 1 \
-          -b lunaris16.2 \
+          -b infinity16.2 \
           .repo/local_manifests || fail_build
 
 # =========================================================
@@ -121,15 +121,6 @@ git clone https://github.com/xioyo/local_manifest \
 # =========================================================
 echo ">>>> [STEP] Repo Sync"
 /opt/crave/resync.sh || fail_build
-
-# =========================================================
-# KEYS
-# =========================================================
-echo ">>>> [STEP] Keys Setup"
-rm -rf vendor/lineage-priv/keys
-git clone -b 16.2 https://github.com/xioyo/vendor_lunaris-priv_keys.git vendor/lineage-priv/keys
-cd vendor/lineage-priv/keys && bash $(pwd)/keys.sh
-cd ../../..
 
 # =========================================================
 # ENV SETUP
@@ -141,7 +132,7 @@ source build/envsetup.sh || fail_build
 # LUNCH
 # =========================================================
 echo ">>>> [STEP] Lunch"
-lunch lineage_${TARGET_DEVICE}-bp4a-${BUILD_VARIANT} || fail_build
+lunch infinity_${TARGET_DEVICE}-${BUILD_VARIANT} || fail_build
 
 # =========================================================
 # BUILD
