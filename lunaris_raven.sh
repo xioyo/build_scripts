@@ -126,9 +126,7 @@ echo ">>>> [STEP] Repo Sync"
 # KEYS
 # =========================================================
 echo ">>>> [STEP] Keys Setup"
-rm -rf vendor/lineage-priv/keys
-git clone -b 16.2 https://github.com/xioyo/vendor_lunaris-priv_keys.git vendor/lineage-priv/keys
-cd vendor/lineage-priv/keys && bash $(pwd)/keys.sh
+cd vendor/lunaris-priv/keys && bash $(pwd)/keys.sh
 cd ../../..
 
 # =========================================================
